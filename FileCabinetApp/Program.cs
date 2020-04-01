@@ -26,7 +26,7 @@ namespace FileCabinetApp
 
         public static void Main(string[] args)
         {
-            Console.WriteLine($"File Cabinet Application, developed by {Program.IvanBabitski}");
+            Console.WriteLine($"File Cabinet Application, developed by {Program.DeveloperName}");
             Console.WriteLine(Program.HintMessage);
             Console.WriteLine();
 
