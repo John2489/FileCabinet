@@ -16,6 +16,7 @@ namespace FileCabinetApp
         private static Tuple<string, Action<string>>[] commands = new Tuple<string, Action<string>>[]
         {
             new Tuple<string, Action<string>>("help", PrintHelp),
+            new Tuple<string, Action<string>>("create", Create),
             new Tuple<string, Action<string>>("stat", Stat),
             new Tuple<string, Action<string>>("exit", Exit),
         };
@@ -23,6 +24,7 @@ namespace FileCabinetApp
         private static string[][] helpMessages = new string[][]
         {
             new string[] { "help", "prints the help screen", "The 'help' command prints the help screen." },
+            new string[] { "create", "create new record", "The 'create' command create new record." },
             new string[] { "stat", "prints statistic about records", "The 'stat' command prints quantity of records." },
             new string[] { "exit", "exits the application", "The 'exit' command exits the application." },
         };
@@ -98,6 +100,54 @@ namespace FileCabinetApp
         {
             var recordsCount = Program.fileCabinetService.GetStat();
             Console.WriteLine($"{recordsCount} record(s).");
+        }
+
+        private static void Create(string parameters)
+        {
+            Console.Write("First name: ");
+            string firstName = Console.ReadLine();
+            Console.Write("Last name: ");
+            string lastName = Console.ReadLine();
+
+            string date;
+            string[] dayMonthHear;
+            int[] dateSepareted = new int[3];
+            DateTime dateTime;
+            while (true)
+            {
+                Console.Write("Date of birth(mm/dd/hhhh): ");
+                date = Console.ReadLine();
+                dayMonthHear = date.Split('/');
+                if (dayMonthHear.Length != 3)
+                {
+                    Console.WriteLine("Invalid Date");
+                    continue;
+                }
+
+                if (int.TryParse(dayMonthHear[0], out dateSepareted[0]) &&
+                    int.TryParse(dayMonthHear[1], out dateSepareted[1]) &&
+                    int.TryParse(dayMonthHear[2], out dateSepareted[2]))
+                {
+                    try
+                    {
+                        dateTime = new DateTime(dateSepareted[2], dateSepareted[0], dateSepareted[1]);
+                        break;
+                    }
+                    catch (ArgumentOutOfRangeException)
+                    {
+                        Console.WriteLine("Invalid Date");
+                        continue;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Invalid Date");
+                    continue;
+                }
+            }
+
+            fileCabinetService.CreateRecord(firstName, lastName, dateTime);
+            Console.WriteLine($"Record #{fileCabinetService.GetStat()} is created.");
         }
 
         private static void Exit(string parameters)
