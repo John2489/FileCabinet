@@ -26,8 +26,7 @@ namespace FileCabinetApp
 
         public FileCabinetRecord[] GetRecords()
         {
-            // TODO: добавьте реализацию метода
-            return Array.Empty<FileCabinetRecord>();
+            return this.list.ToArray();
         }
 
         public int GetStat()
