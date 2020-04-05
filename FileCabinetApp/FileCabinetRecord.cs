@@ -13,5 +13,11 @@ namespace FileCabinetApp
         public string LastName { get; set; }
 
         public DateTime DateOfBirth { get; set; }
+
+        public short SuccsesfullDeals { get; set; }
+
+        public decimal AdditionCoefficient { get; set; }
+
+        public char ManegerClass { get; set; }
     }
 }
