@@ -13,6 +13,7 @@ namespace FileCabinetApp
 
         private static bool isRunning = true;
         private static FileCabinetService fileCabinetService = new FileCabinetService();
+        private static CultureInfo regionalSetting = CultureInfo.CreateSpecificCulture("en-US");
 
         private static Tuple<string, Action<string>>[] commands = new Tuple<string, Action<string>>[]
         {
@@ -21,11 +22,13 @@ namespace FileCabinetApp
             new Tuple<string, Action<string>>("help", PrintHelp),
             new Tuple<string, Action<string>>("list", List),
             new Tuple<string, Action<string>>("stat", Stat),
+            new Tuple<string, Action<string>>($"edit", Edit),
         };
 
         private static string[][] helpMessages = new string[][]
         {
             new string[] { "create", "create new record", "The 'create' command create new record." },
+            new string[] { "edit", "edit record by id", "The 'edit' command create new record. Parametr is id of edit records." },
             new string[] { "exit", "exits the application", "The 'exit' command exits the application." },
             new string[] { "help", "prints the help screen", "The 'help' command prints the help screen." },
             new string[] { "list", "prints the all records", "The 'list' command prints all records." },
@@ -104,9 +107,12 @@ namespace FileCabinetApp
             FileCabinetRecord[] files = fileCabinetService.GetRecords();
             for (int i = 0; i < files.Length; i++)
             {
-                Console.WriteLine($"#{i + 1}, {files[i].FirstName}, " +
+                Console.WriteLine($"#{files[i].Id}, {files[i].FirstName}, " +
                                   $"{files[i].LastName}," +
-                                  $" {files[i].DateOfBirth.ToString("yyyy-MMM-dd", CultureInfo.CreateSpecificCulture("en-US"))}");
+                                  $" {files[i].DateOfBirth.ToString("yyyy-MMM-dd", regionalSetting)}," +
+                                  $" {files[i].SuccsesfullDeals}," +
+                                  $" {files[i].AdditionCoefficient}," +
+                                  $" {files[i].ManegerClass.ToString(regionalSetting).ToUpper(regionalSetting)}");
             }
         }
 
@@ -116,17 +122,50 @@ namespace FileCabinetApp
             Console.WriteLine($"{recordsCount} record(s).");
         }
 
-        private static void Create(string parameters)
+        private static object[] UserQuestioning()
         {
-            Console.Write("First name: ");
-            string firstName = Console.ReadLine();
-            Console.Write("Last name: ");
-            string lastName = Console.ReadLine();
+            string firstName;
+            string lastName;
+            DateTime dateTime;
+            short succsesfullDeals;
+            decimal additionCoefficient;
+            char manegerClass;
+
+            DateTime minDate = new DateTime(1950, 1, 1);
+
+            while (true)
+            {
+                Console.Write("First name: ");
+                firstName = Console.ReadLine();
+                if (firstName.Length < 2 || firstName.Length > 60 || firstName == null || firstName.Contains(' ', StringComparison.CurrentCulture))
+                {
+                    Console.WriteLine("Invalid First name");
+                    continue;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            while (true)
+            {
+                Console.Write("Last name: ");
+                lastName = Console.ReadLine();
+                if (lastName.Length < 2 || lastName.Length > 60 || lastName == null || lastName.Contains(' ', StringComparison.CurrentCulture))
+                {
+                    Console.WriteLine("Invalid Last name");
+                    continue;
+                }
+                else
+                {
+                    break;
+                }
+            }
 
             string date;
             string[] dayMonthHear;
             int[] dateSepareted = new int[3];
-            DateTime dateTime;
             while (true)
             {
                 Console.Write("Date of birth(mm/dd/hhhh): ");
@@ -145,6 +184,12 @@ namespace FileCabinetApp
                     try
                     {
                         dateTime = new DateTime(dateSepareted[2], dateSepareted[0], dateSepareted[1]);
+                        if (dateTime < minDate || dateTime >= DateTime.Now)
+                        {
+                            Console.WriteLine("Invalid Date");
+                            continue;
+                        }
+
                         break;
                     }
                     catch (ArgumentOutOfRangeException)
@@ -160,7 +205,62 @@ namespace FileCabinetApp
                 }
             }
 
-            fileCabinetService.CreateRecord(firstName, lastName, dateTime);
+            string succsesfullDealsString;
+            while (true)
+            {
+                Console.Write("Quantity of succsesfull deals: ");
+                succsesfullDealsString = Console.ReadLine();
+                if (short.TryParse(succsesfullDealsString, out succsesfullDeals) && succsesfullDeals >= 0)
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid Quantity of succsesfull deals");
+                    continue;
+                }
+            }
+
+            string additionCoefficientString;
+            while (true)
+            {
+                Console.Write("Addition сoefficient to salary: ");
+                additionCoefficientString = Console.ReadLine();
+                if (decimal.TryParse(additionCoefficientString, out additionCoefficient) && additionCoefficient >= 0)
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid Addition сoefficient");
+                    continue;
+                }
+            }
+
+            string manegerClassString;
+            while (true)
+            {
+                Console.Write("Maneger Class: ");
+                manegerClassString = Console.ReadLine();
+                if (manegerClassString.Length == 1 && char.IsLetter(manegerClassString[0]))
+                {
+                    manegerClass = manegerClassString[0];
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid Maneger Class");
+                    continue;
+                }
+            }
+
+            return new object[6] { firstName, lastName, dateTime, succsesfullDeals, additionCoefficient, manegerClass };
+        }
+
+        private static void Create(string parameters)
+        {
+            object[] newRecordData = UserQuestioning();
+            fileCabinetService.CreateRecord(newRecordData[0].ToString(), newRecordData[1].ToString(), (DateTime)newRecordData[2], (short)newRecordData[3], (decimal)newRecordData[4], (char)newRecordData[5]);
             Console.WriteLine($"Record #{fileCabinetService.GetStat()} is created.");
         }
 
@@ -168,6 +268,32 @@ namespace FileCabinetApp
         {
             Console.WriteLine("Exiting an application...");
             isRunning = false;
+        }
+
+        private static void Edit(string parameters)
+        {
+            int indexOfRecord;
+            if (string.IsNullOrWhiteSpace(parameters))
+            {
+                Console.WriteLine("You didn't write which record you want to edit.");
+                return;
+            }
+
+            if (!int.TryParse(parameters, out indexOfRecord) || indexOfRecord <= 0)
+            {
+                Console.WriteLine("Number of record is not correct.");
+                return;
+            }
+
+            if (indexOfRecord > fileCabinetService.GetStat())
+            {
+                Console.WriteLine($"#{indexOfRecord} record is not found.");
+                return;
+            }
+
+            object[] newRecordData = UserQuestioning();
+            fileCabinetService.EditRecord(indexOfRecord, newRecordData[0].ToString(), newRecordData[1].ToString(), (DateTime)newRecordData[2], (short)newRecordData[3], (decimal)newRecordData[4], (char)newRecordData[5]);
+            Console.WriteLine($"Record #{indexOfRecord} is updated.");
         }
     }
 }
