@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text;
 
 namespace FileCabinetApp
@@ -55,6 +56,22 @@ namespace FileCabinetApp
             this.list.Add(record);
 
             return record.Id;
+        }
+
+        public void EditRecord(int id, string firstName, string lastName, DateTime dateOfBirth, short succsesfullDeals, decimal additionCoefficient, char manegerClass)
+        {
+            FileCabinetRecord editingElement = this.list.Where<FileCabinetRecord>(t => t.Id == id).FirstOrDefault();
+            if (editingElement == null)
+            {
+                throw new ArgumentException($"Editing element whis id {id} does not exist.");
+            }
+
+            editingElement.FirstName = firstName;
+            editingElement.LastName = lastName;
+            editingElement.DateOfBirth = dateOfBirth;
+            editingElement.SuccsesfullDeals = succsesfullDeals;
+            editingElement.AdditionCoefficient = additionCoefficient;
+            editingElement.ManegerClass = manegerClass;
         }
 
         public FileCabinetRecord[] GetRecords()
