@@ -105,7 +105,7 @@ namespace FileCabinetApp
             FileCabinetRecord[] files = fileCabinetService.GetRecords();
             for (int i = 0; i < files.Length; i++)
             {
-                Console.WriteLine($"#{i + 1}, {files[i].FirstName}, " +
+                Console.WriteLine($"#{files[i].Id}, {files[i].FirstName}, " +
                                   $"{files[i].LastName}," +
                                   $" {files[i].DateOfBirth.ToString("yyyy-MMM-dd", regionalSetting)}," +
                                   $" {files[i].SuccsesfullDeals}," +
@@ -122,18 +122,36 @@ namespace FileCabinetApp
 
         private static void Create(string parameters)
         {
-            Console.Write("First name: ");
-            string firstName = Console.ReadLine();
-            if (firstName.Length < 2 || firstName.Length > 60 || firstName == null || firstName.Contains(' ', StringComparison.CurrentCulture))
+            string firstName;
+            while (true)
             {
-                throw new ArgumentException("User's enter is not correct in \"First name: \" line.");
+                Console.Write("First name: ");
+                firstName = Console.ReadLine();
+                if (firstName.Length < 2 || firstName.Length > 60 || firstName == null || firstName.Contains(' ', StringComparison.CurrentCulture))
+                {
+                    Console.WriteLine("Invalid First name");
+                    continue;
+                }
+                else
+                {
+                    break;
+                }
             }
 
-            Console.Write("Last name: ");
-            string lastName = Console.ReadLine();
-            if (lastName.Length < 2 || lastName.Length > 60 || lastName == null || lastName.Contains(' ', StringComparison.CurrentCulture))
+            string lastName;
+            while (true)
             {
-                throw new ArgumentException("User's enter is not correct in \"First name: \" line.");
+                Console.Write("Last name: ");
+                lastName = Console.ReadLine();
+                if (lastName.Length < 2 || lastName.Length > 60 || lastName == null || lastName.Contains(' ', StringComparison.CurrentCulture))
+                {
+                    Console.WriteLine("Invalid Last name");
+                    continue;
+                }
+                else
+                {
+                    break;
+                }
             }
 
             string date;
@@ -159,10 +177,12 @@ namespace FileCabinetApp
                     try
                     {
                         dateTime = new DateTime(dateSepareted[2], dateSepareted[0], dateSepareted[1]);
-                        if(dateTime < minDate || dateTime >= DateTime.Now)
+                        if (dateTime < minDate || dateTime >= DateTime.Now)
                         {
-                            throw new ArgumentException("User's enter is not correct in \"Date of birth(mm/dd/hhhh): \" line.");
+                            Console.WriteLine("Invalid Date");
+                            continue;
                         }
+
                         break;
                     }
                     catch (ArgumentOutOfRangeException)
@@ -178,40 +198,56 @@ namespace FileCabinetApp
                 }
             }
 
-            Console.Write("Quantity of succsesfull deals: ");
-            string succsesfullDealsString = Console.ReadLine();
+            string succsesfullDealsString;
             short succsesfullDeals;
-            if (short.TryParse(succsesfullDealsString, out _))
+            while (true)
             {
-                succsesfullDeals = short.Parse(succsesfullDealsString, regionalSetting);
-            }
-            else
-            {
-                throw new ArgumentException("User's enter is not correct in \"Quantity of succsesfull deals: \" line.");
+                Console.Write("Quantity of succsesfull deals: ");
+                succsesfullDealsString = Console.ReadLine();
+                if (short.TryParse(succsesfullDealsString, out succsesfullDeals) && succsesfullDeals >= 0)
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid Quantity of succsesfull deals");
+                    continue;
+                }
             }
 
-            Console.Write("Addition сoefficient to salary: ");
-            string additionCoefficientString = Console.ReadLine();
+            string additionCoefficientString;
             decimal additionCoefficient;
-            if (decimal.TryParse(succsesfullDealsString, out _))
+            while (true)
             {
-                additionCoefficient = decimal.Parse(additionCoefficientString, regionalSetting);
-            }
-            else
-            {
-                throw new ArgumentException("User's enter is not correct in \"Addition сoefficient to salary: \" line.");
+                Console.Write("Addition сoefficient to salary: ");
+                additionCoefficientString = Console.ReadLine();
+                if (decimal.TryParse(additionCoefficientString, out additionCoefficient) && additionCoefficient >= 0)
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid Addition сoefficient");
+                    continue;
+                }
             }
 
-            Console.Write("Maneger Class: ");
-            string manegerClassString = Console.ReadLine();
+            string manegerClassString;
             char manegerClass;
-            if (manegerClassString.Length < 2 || manegerClassString.Length != 0)
+            while (true)
             {
-                manegerClass = manegerClassString[0];
-            }
-            else
-            {
-                throw new ArgumentException("User's enter is not correct in \"Maneger Class: \" line.");
+                Console.Write("Maneger Class: ");
+                manegerClassString = Console.ReadLine();
+                if (manegerClassString.Length == 1 && char.IsLetter(manegerClassString[0]))
+                {
+                    manegerClass = manegerClassString[0];
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine("Invalid Maneger Class");
+                    continue;
+                }
             }
 
             fileCabinetService.CreateRecord(firstName, lastName, dateTime, succsesfullDeals, additionCoefficient, manegerClass);
