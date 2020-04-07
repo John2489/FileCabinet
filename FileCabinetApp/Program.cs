@@ -18,11 +18,12 @@ namespace FileCabinetApp
         private static Tuple<string, Action<string>>[] commands = new Tuple<string, Action<string>>[]
         {
             new Tuple<string, Action<string>>("create", Create),
+            new Tuple<string, Action<string>>("edit", Edit),
             new Tuple<string, Action<string>>("exit", Exit),
-            new Tuple<string, Action<string>>("help", PrintHelp),
+            new Tuple<string, Action<string>>("find", Find),
             new Tuple<string, Action<string>>("list", List),
+            new Tuple<string, Action<string>>("help", PrintHelp),
             new Tuple<string, Action<string>>("stat", Stat),
-            new Tuple<string, Action<string>>($"edit", Edit),
         };
 
         private static string[][] helpMessages = new string[][]
@@ -33,6 +34,7 @@ namespace FileCabinetApp
             new string[] { "help", "prints the help screen", "The 'help' command prints the help screen." },
             new string[] { "list", "prints the all records", "The 'list' command prints all records." },
             new string[] { "stat", "prints statistic about records", "The 'stat' command prints quantity of records." },
+            new string[] { "find firstname", "finds specific record record by FirstName", "The 'find' command find specific record by FirstName." },
         };
 
         public static void Main(string[] args)
@@ -104,16 +106,7 @@ namespace FileCabinetApp
 
         private static void List(string parameters)
         {
-            FileCabinetRecord[] files = fileCabinetService.GetRecords();
-            for (int i = 0; i < files.Length; i++)
-            {
-                Console.WriteLine($"#{files[i].Id}, {files[i].FirstName}, " +
-                                  $"{files[i].LastName}," +
-                                  $" {files[i].DateOfBirth.ToString("yyyy-MMM-dd", regionalSetting)}," +
-                                  $" {files[i].SuccsesfullDeals}," +
-                                  $" {files[i].AdditionCoefficient}," +
-                                  $" {files[i].ManegerClass.ToString(regionalSetting).ToUpper(regionalSetting)}");
-            }
+            PrintRecords(fileCabinetService.GetRecords());
         }
 
         private static void Stat(string parameters)
@@ -294,6 +287,43 @@ namespace FileCabinetApp
             object[] newRecordData = UserQuestioning();
             fileCabinetService.EditRecord(indexOfRecord, newRecordData[0].ToString(), newRecordData[1].ToString(), (DateTime)newRecordData[2], (short)newRecordData[3], (decimal)newRecordData[4], (char)newRecordData[5]);
             Console.WriteLine($"Record #{indexOfRecord} is updated.");
+        }
+
+        private static void Find(string parameters)
+        {
+            string[] findParametrs = parameters.Split(' ', 2);
+            string firstName;
+            if (findParametrs.Length != 2)
+            {
+                Console.WriteLine("Write command with Find, try again.");
+                return;
+            }
+
+            string paramOfFind = findParametrs[0];
+            if (paramOfFind.ToUpper(regionalSetting) != "FIRSTNAME")
+            {
+                Console.WriteLine("Command is not correct, try again.");
+                return;
+            }
+            else
+            {
+                firstName = findParametrs[1].Trim('"').ToUpper(regionalSetting);
+                PrintRecords(fileCabinetService.FindByFirstName(firstName));
+            }
+
+        }
+
+        private static void PrintRecords(FileCabinetRecord[] files)
+        {
+            for (int i = 0; i < files.Length; i++)
+            {
+                Console.WriteLine($"#{files[i].Id}, {files[i].FirstName}, " +
+                                  $"{files[i].LastName}," +
+                                  $" {files[i].DateOfBirth.ToString("yyyy-MMM-dd", regionalSetting)}," +
+                                  $" {files[i].SuccsesfullDeals}," +
+                                  $" {files[i].AdditionCoefficient}," +
+                                  $" {files[i].ManegerClass.ToString(regionalSetting).ToUpper(regionalSetting)}");
+            }
         }
     }
 }
