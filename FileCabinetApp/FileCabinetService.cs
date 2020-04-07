@@ -80,6 +80,17 @@ namespace FileCabinetApp
             return this.list.Where<FileCabinetRecord>(t => t.FirstName.ToUpper(CultureInfo.CreateSpecificCulture("en-US")) == firstName).ToArray();
         }
 
+        public FileCabinetRecord[] FindByLastName(string lastName)
+        {
+            return this.list.Where<FileCabinetRecord>(t => t.LastName.ToUpper(CultureInfo.CreateSpecificCulture("en-US")) == lastName).ToArray();
+        }
+
+        public FileCabinetRecord[] FindByDateOfBirthName(DateTime dateOfBirth)
+        {
+
+            return this.list.Where(t => t.DateOfBirth == dateOfBirth).ToArray();
+        }
+
         public FileCabinetRecord[] GetRecords()
         {
             return this.list.ToArray();

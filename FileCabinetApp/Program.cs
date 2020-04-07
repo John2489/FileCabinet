@@ -31,10 +31,12 @@ namespace FileCabinetApp
             new string[] { "create", "create new record", "The 'create' command create new record." },
             new string[] { "edit", "edit record by id", "The 'edit' command create new record. Parametr is id of edit records." },
             new string[] { "exit", "exits the application", "The 'exit' command exits the application." },
+            new string[] { "find firstname", "finds specific record record by FirstName", "The 'find' command find specific record by FirstName." },
+            new string[] { "find lastname", "finds specific record record by LastName", "The 'find' command find specific record by LastName." },
+            new string[] { "find dateofbirth", "finds specific record record by DateOfBirth", "The 'find' command find specific record by DateOfBirth." },
             new string[] { "help", "prints the help screen", "The 'help' command prints the help screen." },
             new string[] { "list", "prints the all records", "The 'list' command prints all records." },
             new string[] { "stat", "prints statistic about records", "The 'stat' command prints quantity of records." },
-            new string[] { "find firstname", "finds specific record record by FirstName", "The 'find' command find specific record by FirstName." },
         };
 
         public static void Main(string[] args)
@@ -292,7 +294,8 @@ namespace FileCabinetApp
         private static void Find(string parameters)
         {
             string[] findParametrs = parameters.Split(' ', 2);
-            string firstName;
+            string temp;
+            DateTime dateTime;
             if (findParametrs.Length != 2)
             {
                 Console.WriteLine("Write command with Find, try again.");
@@ -300,17 +303,34 @@ namespace FileCabinetApp
             }
 
             string paramOfFind = findParametrs[0];
-            if (paramOfFind.ToUpper(regionalSetting) != "FIRSTNAME")
+            if (paramOfFind.ToUpper(regionalSetting) == "FIRSTNAME")
+            {
+                temp = findParametrs[1].Trim('"').ToUpper(regionalSetting);
+                PrintRecords(fileCabinetService.FindByFirstName(temp));
+            }
+            else if (paramOfFind.ToUpper(regionalSetting) == "LASTNAME")
+            {
+                temp = findParametrs[1].Trim('"').ToUpper(regionalSetting);
+                PrintRecords(fileCabinetService.FindByLastName(temp));
+            }
+            else if (paramOfFind.ToUpper(regionalSetting) == "DATEOFBIRTH")
+            {
+                temp = findParametrs[1].Trim('"');
+                if (DateTime.TryParse(temp, out dateTime))
+                {
+                    PrintRecords(fileCabinetService.FindByDateOfBirthName(dateTime));
+                }
+                else
+                {
+                    Console.WriteLine("Command is not correct, try again.");
+                    return;
+                }
+            }
+            else
             {
                 Console.WriteLine("Command is not correct, try again.");
                 return;
             }
-            else
-            {
-                firstName = findParametrs[1].Trim('"').ToUpper(regionalSetting);
-                PrintRecords(fileCabinetService.FindByFirstName(firstName));
-            }
-
         }
 
         private static void PrintRecords(FileCabinetRecord[] files)
