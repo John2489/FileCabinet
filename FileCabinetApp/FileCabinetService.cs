@@ -10,6 +10,7 @@ namespace FileCabinetApp
     public class FileCabinetService
     {
         private readonly List<FileCabinetRecord> list = new List<FileCabinetRecord>();
+        private readonly Dictionary<string, List<FileCabinetRecord>> firstNameDictionary = new Dictionary<string, List<FileCabinetRecord>>();
 
         public int CreateRecord(string firstName, string lastName, DateTime dateOfBirth, short succsesfullDeals, decimal additionCoefficient, char manegerClass)
         {
@@ -56,6 +57,15 @@ namespace FileCabinetApp
 
             this.list.Add(record);
 
+            if (this.firstNameDictionary.ContainsKey(record.FirstName.ToUpper(CultureInfo.CurrentCulture)))
+            {
+                this.firstNameDictionary[record.FirstName.ToUpper(CultureInfo.CurrentCulture)] = this.list.Where<FileCabinetRecord>(t => t.FirstName == record.FirstName).ToList();
+            }
+            else
+            {
+                this.firstNameDictionary.Add(record.FirstName.ToUpper(CultureInfo.CurrentCulture), this.list.Where<FileCabinetRecord>(t => t.FirstName == record.FirstName).ToList());
+            }
+
             return record.Id;
         }
 
@@ -67,17 +77,40 @@ namespace FileCabinetApp
                 throw new ArgumentException($"Editing element whis id {id} does not exist.");
             }
 
+            string oldFirstName = editingElement.FirstName;
+
             editingElement.FirstName = firstName;
             editingElement.LastName = lastName;
             editingElement.DateOfBirth = dateOfBirth;
             editingElement.SuccsesfullDeals = succsesfullDeals;
             editingElement.AdditionCoefficient = additionCoefficient;
             editingElement.ManegerClass = manegerClass;
+
+            if (this.firstNameDictionary.ContainsKey(oldFirstName.ToUpper(CultureInfo.CurrentCulture)))
+            {
+                    this.firstNameDictionary[oldFirstName.ToUpper(CultureInfo.CurrentCulture)] = this.list.Where<FileCabinetRecord>(t => t.FirstName == oldFirstName).ToList();
+            }
+
+            if (editingElement.FirstName != null && this.firstNameDictionary.ContainsKey(editingElement.FirstName.ToUpper(CultureInfo.CurrentCulture)))
+            {
+                this.firstNameDictionary[editingElement.FirstName.ToUpper(CultureInfo.CurrentCulture)] = this.list.Where<FileCabinetRecord>(t => t.FirstName == editingElement.FirstName).ToList();
+            }
+            else
+            {
+                this.firstNameDictionary.Add(editingElement.FirstName.ToUpper(CultureInfo.CurrentCulture), this.list.Where<FileCabinetRecord>(t => t.FirstName == editingElement.FirstName).ToList());
+            }
         }
 
         public FileCabinetRecord[] FindByFirstName(string firstName)
         {
-            return this.list.Where<FileCabinetRecord>(t => t.FirstName.ToUpper(CultureInfo.CreateSpecificCulture("en-US")) == firstName).ToArray();
+            if (firstName != null)
+            {
+                return this.firstNameDictionary[firstName.ToUpper(CultureInfo.CurrentCulture)].ToArray();
+            }
+
+            return null;
+
+            // return this.list.Where<FileCabinetRecord>(t => t.FirstName.ToUpper(CultureInfo.CreateSpecificCulture("en-US")) == firstName).ToArray();
         }
 
         public FileCabinetRecord[] FindByLastName(string lastName)
