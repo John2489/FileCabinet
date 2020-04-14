@@ -11,6 +11,7 @@ namespace FileCabinetApp
     {
         private readonly List<FileCabinetRecord> list = new List<FileCabinetRecord>();
         private readonly Dictionary<string, List<FileCabinetRecord>> firstNameDictionary = new Dictionary<string, List<FileCabinetRecord>>();
+        private readonly Dictionary<string, List<FileCabinetRecord>> lastNameDictionary = new Dictionary<string, List<FileCabinetRecord>>();
 
         public int CreateRecord(string firstName, string lastName, DateTime dateOfBirth, short succsesfullDeals, decimal additionCoefficient, char manegerClass)
         {
@@ -66,6 +67,15 @@ namespace FileCabinetApp
                 this.firstNameDictionary.Add(record.FirstName.ToUpper(CultureInfo.CurrentCulture), this.list.Where<FileCabinetRecord>(t => t.FirstName == record.FirstName).ToList());
             }
 
+            if (this.lastNameDictionary.ContainsKey(record.LastName.ToUpper(CultureInfo.CurrentCulture)))
+            {
+                this.lastNameDictionary[record.LastName.ToUpper(CultureInfo.CurrentCulture)] = this.list.Where<FileCabinetRecord>(t => t.LastName == record.LastName).ToList();
+            }
+            else
+            {
+                this.lastNameDictionary.Add(record.LastName.ToUpper(CultureInfo.CurrentCulture), this.list.Where<FileCabinetRecord>(t => t.LastName == record.LastName).ToList());
+            }
+
             return record.Id;
         }
 
@@ -78,6 +88,7 @@ namespace FileCabinetApp
             }
 
             string oldFirstName = editingElement.FirstName;
+            string oldLastName = editingElement.LastName;
 
             editingElement.FirstName = firstName;
             editingElement.LastName = lastName;
@@ -91,6 +102,11 @@ namespace FileCabinetApp
                     this.firstNameDictionary[oldFirstName.ToUpper(CultureInfo.CurrentCulture)] = this.list.Where<FileCabinetRecord>(t => t.FirstName == oldFirstName).ToList();
             }
 
+            if (this.lastNameDictionary.ContainsKey(oldLastName.ToUpper(CultureInfo.CurrentCulture)))
+            {
+                this.lastNameDictionary[oldLastName.ToUpper(CultureInfo.CurrentCulture)] = this.list.Where<FileCabinetRecord>(t => t.LastName == oldLastName).ToList();
+            }
+
             if (editingElement.FirstName != null && this.firstNameDictionary.ContainsKey(editingElement.FirstName.ToUpper(CultureInfo.CurrentCulture)))
             {
                 this.firstNameDictionary[editingElement.FirstName.ToUpper(CultureInfo.CurrentCulture)] = this.list.Where<FileCabinetRecord>(t => t.FirstName == editingElement.FirstName).ToList();
@@ -98,6 +114,15 @@ namespace FileCabinetApp
             else
             {
                 this.firstNameDictionary.Add(editingElement.FirstName.ToUpper(CultureInfo.CurrentCulture), this.list.Where<FileCabinetRecord>(t => t.FirstName == editingElement.FirstName).ToList());
+            }
+
+            if (editingElement.LastName != null && this.lastNameDictionary.ContainsKey(editingElement.LastName.ToUpper(CultureInfo.CurrentCulture)))
+            {
+                this.lastNameDictionary[editingElement.LastName.ToUpper(CultureInfo.CurrentCulture)] = this.list.Where<FileCabinetRecord>(t => t.LastName == editingElement.LastName).ToList();
+            }
+            else
+            {
+                this.lastNameDictionary.Add(editingElement.LastName.ToUpper(CultureInfo.CurrentCulture), this.list.Where<FileCabinetRecord>(t => t.LastName == editingElement.LastName).ToList());
             }
         }
 
@@ -115,7 +140,14 @@ namespace FileCabinetApp
 
         public FileCabinetRecord[] FindByLastName(string lastName)
         {
-            return this.list.Where<FileCabinetRecord>(t => t.LastName.ToUpper(CultureInfo.CreateSpecificCulture("en-US")) == lastName).ToArray();
+            if (lastName != null)
+            {
+                return this.lastNameDictionary[lastName.ToUpper(CultureInfo.CurrentCulture)].ToArray();
+            }
+
+            return null;
+
+            // return this.list.Where<FileCabinetRecord>(t => t.LastName.ToUpper(CultureInfo.CreateSpecificCulture("en-US")) == lastName).ToArray();
         }
 
         public FileCabinetRecord[] FindByDateOfBirthName(DateTime dateOfBirth)
