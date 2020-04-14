@@ -12,6 +12,7 @@ namespace FileCabinetApp
         private readonly List<FileCabinetRecord> list = new List<FileCabinetRecord>();
         private readonly Dictionary<string, List<FileCabinetRecord>> firstNameDictionary = new Dictionary<string, List<FileCabinetRecord>>();
         private readonly Dictionary<string, List<FileCabinetRecord>> lastNameDictionary = new Dictionary<string, List<FileCabinetRecord>>();
+        private readonly Dictionary<DateTime, List<FileCabinetRecord>> dateOfBirthNameDictionary = new Dictionary<DateTime, List<FileCabinetRecord>>();
 
         public int CreateRecord(string firstName, string lastName, DateTime dateOfBirth, short succsesfullDeals, decimal additionCoefficient, char manegerClass)
         {
@@ -76,6 +77,15 @@ namespace FileCabinetApp
                 this.lastNameDictionary.Add(record.LastName.ToUpper(CultureInfo.CurrentCulture), this.list.Where<FileCabinetRecord>(t => t.LastName == record.LastName).ToList());
             }
 
+            if (this.dateOfBirthNameDictionary.ContainsKey(record.DateOfBirth))
+            {
+                this.dateOfBirthNameDictionary[record.DateOfBirth] = this.list.Where<FileCabinetRecord>(t => t.DateOfBirth == record.DateOfBirth).ToList();
+            }
+            else
+            {
+                this.dateOfBirthNameDictionary.Add(record.DateOfBirth, this.list.Where<FileCabinetRecord>(t => t.DateOfBirth == record.DateOfBirth).ToList());
+            }
+
             return record.Id;
         }
 
@@ -89,6 +99,7 @@ namespace FileCabinetApp
 
             string oldFirstName = editingElement.FirstName;
             string oldLastName = editingElement.LastName;
+            DateTime oldDateOfBirth = new DateTime(editingElement.DateOfBirth.Year, editingElement.DateOfBirth.Month, editingElement.DateOfBirth.Day);
 
             editingElement.FirstName = firstName;
             editingElement.LastName = lastName;
@@ -107,6 +118,11 @@ namespace FileCabinetApp
                 this.lastNameDictionary[oldLastName.ToUpper(CultureInfo.CurrentCulture)] = this.list.Where<FileCabinetRecord>(t => t.LastName == oldLastName).ToList();
             }
 
+            if (this.dateOfBirthNameDictionary.ContainsKey(oldDateOfBirth))
+            {
+                this.dateOfBirthNameDictionary[oldDateOfBirth] = this.list.Where<FileCabinetRecord>(t => t.DateOfBirth == oldDateOfBirth).ToList();
+            }
+
             if (editingElement.FirstName != null && this.firstNameDictionary.ContainsKey(editingElement.FirstName.ToUpper(CultureInfo.CurrentCulture)))
             {
                 this.firstNameDictionary[editingElement.FirstName.ToUpper(CultureInfo.CurrentCulture)] = this.list.Where<FileCabinetRecord>(t => t.FirstName == editingElement.FirstName).ToList();
@@ -123,6 +139,15 @@ namespace FileCabinetApp
             else
             {
                 this.lastNameDictionary.Add(editingElement.LastName.ToUpper(CultureInfo.CurrentCulture), this.list.Where<FileCabinetRecord>(t => t.LastName == editingElement.LastName).ToList());
+            }
+
+            if (editingElement.DateOfBirth != null && this.dateOfBirthNameDictionary.ContainsKey(editingElement.DateOfBirth))
+            {
+                this.dateOfBirthNameDictionary[editingElement.DateOfBirth] = this.list.Where<FileCabinetRecord>(t => t.DateOfBirth == editingElement.DateOfBirth).ToList();
+            }
+            else
+            {
+                this.dateOfBirthNameDictionary.Add(editingElement.DateOfBirth, this.list.Where<FileCabinetRecord>(t => t.DateOfBirth == editingElement.DateOfBirth).ToList());
             }
         }
 
@@ -152,8 +177,14 @@ namespace FileCabinetApp
 
         public FileCabinetRecord[] FindByDateOfBirthName(DateTime dateOfBirth)
         {
+            if (dateOfBirth != null)
+            {
+                return this.dateOfBirthNameDictionary[dateOfBirth].ToArray();
+            }
 
-            return this.list.Where(t => t.DateOfBirth == dateOfBirth).ToArray();
+            return null;
+
+            // return this.list.Where(t => t.DateOfBirth == dateOfBirth).ToArray();
         }
 
         public FileCabinetRecord[] GetRecords()
