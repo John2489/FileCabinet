@@ -3,6 +3,9 @@ using System.Globalization;
 
 namespace FileCabinetApp
 {
+    /// <summary>
+    /// This class is contains the Main method and runs application.
+    /// </summary>
     public static class Program
     {
         private const string DeveloperName = "Ivan Babitski";
@@ -39,7 +42,10 @@ namespace FileCabinetApp
             new string[] { "stat", "prints statistic about records", "The 'stat' command prints quantity of records." },
         };
 
-        public static void Main(string[] args)
+        /// <summary>
+        /// Main method from which starts application.
+        /// </summary>
+        public static void Main()
         {
             Console.WriteLine($"File Cabinet Application, developed by {Program.DeveloperName}");
             Console.WriteLine(Program.HintMessage);
@@ -342,7 +348,7 @@ namespace FileCabinetApp
                                   $" {files[i].DateOfBirth.ToString("yyyy-MMM-dd", regionalSetting)}," +
                                   $" {files[i].SuccsesfullDeals}," +
                                   $" {files[i].AdditionCoefficient}," +
-                                  $" {files[i].ManegerClass.ToString(regionalSetting).ToUpper(regionalSetting)}");
+                                  $" {files[i].ManagerClass.ToString(regionalSetting).ToUpper(regionalSetting)}");
             }
         }
     }

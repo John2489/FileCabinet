@@ -7,6 +7,9 @@ using System.Text;
 
 namespace FileCabinetApp
 {
+    /// <summary>
+    /// This class includes and implements the behavior of the File Cabinet service.
+    /// </summary>
     public class FileCabinetService
     {
         private readonly List<FileCabinetRecord> list = new List<FileCabinetRecord>();
@@ -14,7 +17,17 @@ namespace FileCabinetApp
         private readonly Dictionary<string, List<FileCabinetRecord>> lastNameDictionary = new Dictionary<string, List<FileCabinetRecord>>();
         private readonly Dictionary<DateTime, List<FileCabinetRecord>> dateOfBirthNameDictionary = new Dictionary<DateTime, List<FileCabinetRecord>>();
 
-        public int CreateRecord(string firstName, string lastName, DateTime dateOfBirth, short succsesfullDeals, decimal additionCoefficient, char manegerClass)
+        /// <summary>
+        /// Method creates new record.
+        /// </summary>
+        /// <param name="firstName">First name of person in record.</param>
+        /// <param name="lastName">Last name of person in record.</param>
+        /// <param name="dateOfBirth">Date of birth of person in record.</param>
+        /// <param name="succsesfullDeals">Quantity of succsesfull deals of person in record.</param>
+        /// <param name="additionCoefficient">Addition coefficient to salary of person in record.</param>
+        /// <param name="managerClass">Class of manager in record.</param>
+        /// <returns>Identification number of record.</returns>
+        public int CreateRecord(string firstName, string lastName, DateTime dateOfBirth, short succsesfullDeals, decimal additionCoefficient, char managerClass)
         {
             if (firstName == null || firstName.Length < 2 || firstName.Length > 60 || firstName.Contains(' ', StringComparison.CurrentCulture))
             {
@@ -41,7 +54,7 @@ namespace FileCabinetApp
                 throw new ArgumentException("parametr \"additionCoefficient\" is not correct.");
             }
 
-            if (!char.IsLetter(manegerClass))
+            if (!char.IsLetter(managerClass))
             {
                 throw new ArgumentException("parametr \"manegerClass\" is not correct.");
             }
@@ -54,7 +67,7 @@ namespace FileCabinetApp
                 DateOfBirth = dateOfBirth,
                 SuccsesfullDeals = succsesfullDeals,
                 AdditionCoefficient = additionCoefficient,
-                ManegerClass = manegerClass,
+                ManagerClass = managerClass,
             };
 
             this.list.Add(record);
@@ -89,7 +102,17 @@ namespace FileCabinetApp
             return record.Id;
         }
 
-        public void EditRecord(int id, string firstName, string lastName, DateTime dateOfBirth, short succsesfullDeals, decimal additionCoefficient, char manegerClass)
+        /// <summary>
+        ///  Method edited an existing record.
+        /// </summary>
+        /// <param name="id">Identification number of record which editing.</param>
+        /// <param name="firstName">First name of person in record.</param>
+        /// <param name="lastName">Last name of person in record.</param>
+        /// <param name="dateOfBirth">Date of birth of person in record.</param>
+        /// <param name="succsesfullDeals">Quantity of succsesfull deals of person in record.</param>
+        /// <param name="additionCoefficient">Addition coefficient to salary of person in record.</param>
+        /// <param name="managerClass">Class of maneger in record.</param>
+        public void EditRecord(int id, string firstName, string lastName, DateTime dateOfBirth, short succsesfullDeals, decimal additionCoefficient, char managerClass)
         {
             FileCabinetRecord editingElement = this.list.Where<FileCabinetRecord>(t => t.Id == id).FirstOrDefault();
             if (editingElement == null)
@@ -106,7 +129,7 @@ namespace FileCabinetApp
             editingElement.DateOfBirth = dateOfBirth;
             editingElement.SuccsesfullDeals = succsesfullDeals;
             editingElement.AdditionCoefficient = additionCoefficient;
-            editingElement.ManegerClass = manegerClass;
+            editingElement.ManagerClass = managerClass;
 
             if (this.firstNameDictionary.ContainsKey(oldFirstName.ToUpper(CultureInfo.CurrentCulture)))
             {
@@ -151,6 +174,11 @@ namespace FileCabinetApp
             }
         }
 
+        /// <summary>
+        /// Method findes records by first name.
+        /// </summary>
+        /// <param name="firstName">First name of person in record.</param>
+        /// <returns>Returns array of records where first name in each one record the same.</returns>
         public FileCabinetRecord[] FindByFirstName(string firstName)
         {
             if (firstName != null)
@@ -163,6 +191,11 @@ namespace FileCabinetApp
             // return this.list.Where<FileCabinetRecord>(t => t.FirstName.ToUpper(CultureInfo.CreateSpecificCulture("en-US")) == firstName).ToArray();
         }
 
+        /// <summary>
+        /// Method findes records by last name.
+        /// </summary>
+        /// <param name="lastName">Last name of person in record.</param>
+        /// <returns>Returns array of records where last name in each one record the same.</returns>
         public FileCabinetRecord[] FindByLastName(string lastName)
         {
             if (lastName != null)
@@ -175,6 +208,11 @@ namespace FileCabinetApp
             // return this.list.Where<FileCabinetRecord>(t => t.LastName.ToUpper(CultureInfo.CreateSpecificCulture("en-US")) == lastName).ToArray();
         }
 
+        /// <summary>
+        /// Method findes records by date of birth.
+        /// </summary>
+        /// <param name="dateOfBirth">Date of birth of person in record.</param>
+        /// <returns>Returns array of records where date of birth in each one record the same.</returns>
         public FileCabinetRecord[] FindByDateOfBirthName(DateTime dateOfBirth)
         {
             if (dateOfBirth != null)
@@ -187,11 +225,19 @@ namespace FileCabinetApp
             // return this.list.Where(t => t.DateOfBirth == dateOfBirth).ToArray();
         }
 
+        /// <summary>
+        /// This method is to gets all records.
+        /// </summary>
+        /// <returns>Returns all records in array view.</returns>
         public FileCabinetRecord[] GetRecords()
         {
             return this.list.ToArray();
         }
 
+        /// <summary>
+        /// Method is to count records.
+        /// </summary>
+        /// <returns>Returns quantity of records.</returns>
         public int GetStat()
         {
             return this.list.Count;
