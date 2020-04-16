@@ -261,7 +261,13 @@ namespace FileCabinetApp
         private static void Create(string parameters)
         {
             object[] newRecordData = UserQuestioning();
-            fileCabinetService.CreateRecord(newRecordData[0].ToString(), newRecordData[1].ToString(), (DateTime)newRecordData[2], (short)newRecordData[3], (decimal)newRecordData[4], (char)newRecordData[5]);
+            fileCabinetService.CreateRecord(new ObjectParametrsForCreateAndEditRecord(
+                                                            newRecordData[0].ToString(),
+                                                            newRecordData[1].ToString(),
+                                                            (DateTime)newRecordData[2],
+                                                            (short)newRecordData[3],
+                                                            (decimal)newRecordData[4],
+                                                            (char)newRecordData[5]));
             Console.WriteLine($"Record #{fileCabinetService.GetStat()} is created.");
         }
 
@@ -293,7 +299,13 @@ namespace FileCabinetApp
             }
 
             object[] newRecordData = UserQuestioning();
-            fileCabinetService.EditRecord(indexOfRecord, newRecordData[0].ToString(), newRecordData[1].ToString(), (DateTime)newRecordData[2], (short)newRecordData[3], (decimal)newRecordData[4], (char)newRecordData[5]);
+            fileCabinetService.EditRecord(indexOfRecord, new ObjectParametrsForCreateAndEditRecord(
+                                                            newRecordData[0].ToString(),
+                                                            newRecordData[1].ToString(),
+                                                            (DateTime)newRecordData[2],
+                                                            (short)newRecordData[3],
+                                                            (decimal)newRecordData[4],
+                                                            (char)newRecordData[5]));
             Console.WriteLine($"Record #{indexOfRecord} is updated.");
         }
 

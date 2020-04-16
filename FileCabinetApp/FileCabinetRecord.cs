@@ -37,7 +37,7 @@ namespace FileCabinetApp
         /// Gets or sets date of birth of record.
         /// </summary>
         /// <value>
-        /// First name of record.
+        /// Date of birth of person in record.
         /// </value>
         public DateTime DateOfBirth { get; set; }
 

@@ -20,41 +20,36 @@ namespace FileCabinetApp
         /// <summary>
         /// Method creates new record.
         /// </summary>
-        /// <param name="firstName">First name of person in record.</param>
-        /// <param name="lastName">Last name of person in record.</param>
-        /// <param name="dateOfBirth">Date of birth of person in record.</param>
-        /// <param name="succsesfullDeals">Quantity of succsesfull deals of person in record.</param>
-        /// <param name="additionCoefficient">Addition coefficient to salary of person in record.</param>
-        /// <param name="managerClass">Class of manager in record.</param>
+        /// <param name="param">Instance that describe all information of record.</param>
         /// <returns>Identification number of record.</returns>
-        public int CreateRecord(string firstName, string lastName, DateTime dateOfBirth, short succsesfullDeals, decimal additionCoefficient, char managerClass)
+        public int CreateRecord(ObjectParametrsForCreateAndEditRecord param)
         {
-            if (firstName == null || firstName.Length < 2 || firstName.Length > 60 || firstName.Contains(' ', StringComparison.CurrentCulture))
+            if (param.FirstName == null || param.FirstName.Length < 2 || param.FirstName.Length > 60 || param.FirstName.Contains(' ', StringComparison.CurrentCulture))
             {
                 throw new ArgumentException("parametr \"firstName\" is not correct.");
             }
 
-            if (lastName == null || lastName.Length < 2 || lastName.Length > 60 || lastName.Contains(' ', StringComparison.CurrentCulture))
+            if (param.LastName == null || param.LastName.Length < 2 || param.LastName.Length > 60 || param.LastName.Contains(' ', StringComparison.CurrentCulture))
             {
                 throw new ArgumentException("parametr \"lastName\" is not correct.");
             }
 
-            if (dateOfBirth == null || dateOfBirth < new DateTime(1950, 1, 1) || dateOfBirth >= DateTime.Now)
+            if (param.DateOfBirth == null || param.DateOfBirth < new DateTime(1950, 1, 1) || param.DateOfBirth >= DateTime.Now)
             {
                 throw new ArgumentException("parametr \"dateOfBirth\" is not correct.");
             }
 
-            if (succsesfullDeals <= 0)
+            if (param.SuccsesfullDeals <= 0)
             {
                 throw new ArgumentException("parametr \"succsesfullDeals\" is not correct.");
             }
 
-            if (additionCoefficient <= 0)
+            if (param.AdditionCoefficient <= 0)
             {
                 throw new ArgumentException("parametr \"additionCoefficient\" is not correct.");
             }
 
-            if (!char.IsLetter(managerClass))
+            if (!char.IsLetter(param.ManagerClass))
             {
                 throw new ArgumentException("parametr \"manegerClass\" is not correct.");
             }
@@ -62,12 +57,12 @@ namespace FileCabinetApp
             var record = new FileCabinetRecord
             {
                 Id = this.list.Count + 1,
-                FirstName = firstName,
-                LastName = lastName,
-                DateOfBirth = dateOfBirth,
-                SuccsesfullDeals = succsesfullDeals,
-                AdditionCoefficient = additionCoefficient,
-                ManagerClass = managerClass,
+                FirstName = param.FirstName,
+                LastName = param.LastName,
+                DateOfBirth = param.DateOfBirth,
+                SuccsesfullDeals = param.SuccsesfullDeals,
+                AdditionCoefficient = param.AdditionCoefficient,
+                ManagerClass = param.ManagerClass,
             };
 
             this.list.Add(record);
@@ -106,16 +101,11 @@ namespace FileCabinetApp
         ///  Method edited an existing record.
         /// </summary>
         /// <param name="id">Identification number of record which editing.</param>
-        /// <param name="firstName">First name of person in record.</param>
-        /// <param name="lastName">Last name of person in record.</param>
-        /// <param name="dateOfBirth">Date of birth of person in record.</param>
-        /// <param name="succsesfullDeals">Quantity of succsesfull deals of person in record.</param>
-        /// <param name="additionCoefficient">Addition coefficient to salary of person in record.</param>
-        /// <param name="managerClass">Class of maneger in record.</param>
-        public void EditRecord(int id, string firstName, string lastName, DateTime dateOfBirth, short succsesfullDeals, decimal additionCoefficient, char managerClass)
+        /// <param name="param">Instance that describe all information of record.</param>
+        public void EditRecord(int id, ObjectParametrsForCreateAndEditRecord param)
         {
             FileCabinetRecord editingElement = this.list.Where<FileCabinetRecord>(t => t.Id == id).FirstOrDefault();
-            if (editingElement == null)
+            if (editingElement == null || param == null)
             {
                 throw new ArgumentException($"Editing element whis id {id} does not exist.");
             }
@@ -124,16 +114,16 @@ namespace FileCabinetApp
             string oldLastName = editingElement.LastName;
             DateTime oldDateOfBirth = new DateTime(editingElement.DateOfBirth.Year, editingElement.DateOfBirth.Month, editingElement.DateOfBirth.Day);
 
-            editingElement.FirstName = firstName;
-            editingElement.LastName = lastName;
-            editingElement.DateOfBirth = dateOfBirth;
-            editingElement.SuccsesfullDeals = succsesfullDeals;
-            editingElement.AdditionCoefficient = additionCoefficient;
-            editingElement.ManagerClass = managerClass;
+            editingElement.FirstName = param.FirstName;
+            editingElement.LastName = param.LastName;
+            editingElement.DateOfBirth = param.DateOfBirth;
+            editingElement.SuccsesfullDeals = param.SuccsesfullDeals;
+            editingElement.AdditionCoefficient = param.AdditionCoefficient;
+            editingElement.ManagerClass = param.ManagerClass;
 
             if (this.firstNameDictionary.ContainsKey(oldFirstName.ToUpper(CultureInfo.CurrentCulture)))
             {
-                    this.firstNameDictionary[oldFirstName.ToUpper(CultureInfo.CurrentCulture)] = this.list.Where<FileCabinetRecord>(t => t.FirstName == oldFirstName).ToList();
+                this.firstNameDictionary[oldFirstName.ToUpper(CultureInfo.CurrentCulture)] = this.list.Where<FileCabinetRecord>(t => t.FirstName == oldFirstName).ToList();
             }
 
             if (this.lastNameDictionary.ContainsKey(oldLastName.ToUpper(CultureInfo.CurrentCulture)))
