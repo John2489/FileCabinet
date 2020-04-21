@@ -10,26 +10,18 @@ namespace FileCabinetApp
     /// <summary>
     /// This class is abstract and includes and implements the behavior of the File Cabinet service.
     /// </summary>
-    public abstract class FileCabinetService
+    public class FileCabinetService
     {
         private readonly List<FileCabinetRecord> list = new List<FileCabinetRecord>();
         private readonly Dictionary<string, List<FileCabinetRecord>> firstNameDictionary = new Dictionary<string, List<FileCabinetRecord>>();
         private readonly Dictionary<string, List<FileCabinetRecord>> lastNameDictionary = new Dictionary<string, List<FileCabinetRecord>>();
         private readonly Dictionary<DateTime, List<FileCabinetRecord>> dateOfBirthNameDictionary = new Dictionary<DateTime, List<FileCabinetRecord>>();
+        private readonly IRecordValidator validator;
 
-        /// <summary>
-        /// Method to create validation.
-        /// </summary>
-        /// <returns>Interface that describes validation method.</returns>
-        public abstract IRecordValidator CreateValidator();
-
-        /// <summary>
-        /// Sets this property contents needed for validate records.
-        /// </summary>
-        /// <value>
-        /// This property contents needed for validate records.
-        /// </value>
-        public IRecordValidator RecordValidator { private get; set; }
+        public FileCabinetService(IRecordValidator validator)
+        {
+            this.validator = validator;
+        }
 
         /// <summary>
         /// Method creates new record.
@@ -38,7 +30,7 @@ namespace FileCabinetApp
         /// <returns>Identification number of record.</returns>
         public int CreateRecord(ObjectParametrsForCreateAndEditRecord param)
         {
-            if (!this.RecordValidator.ValidatePatameters(param))
+            if (!this.validator.ValidatePatameters(param))
             {
                 return 0;
             }
@@ -93,7 +85,7 @@ namespace FileCabinetApp
         /// <param name="param">Instance that describe all information of record.</param>
         public void EditRecord(int id, ObjectParametrsForCreateAndEditRecord param)
         {
-            if (!this.RecordValidator.ValidatePatameters(param))
+            if (!this.validator.ValidatePatameters(param))
             {
                 return;
             }

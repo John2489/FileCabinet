@@ -17,7 +17,7 @@ namespace FileCabinetApp
         private static string validationRule = "Using default validation rules.";
 
         private static bool isRunning = true;
-        private static FileCabinetService fileCabinetService = new FileCabinetDefaultService();
+        private static FileCabinetService fileCabinetService = new FileCabinetService(new DefaultValidator());
         private static CultureInfo regionalSetting = CultureInfo.CreateSpecificCulture("en-US");
 
         private static Tuple<string, Action<string>>[] commands = new Tuple<string, Action<string>>[]
@@ -51,7 +51,6 @@ namespace FileCabinetApp
         public static void Main(string[] args)
         {
             ParametersApplication(args);
-            fileCabinetService.RecordValidator = fileCabinetService.CreateValidator();
 
             Console.WriteLine($"File Cabinet Application, developed by {Program.DeveloperName}");
             Console.WriteLine(Program.validationRule);
@@ -97,19 +96,19 @@ namespace FileCabinetApp
                 switch (item.ToUpper(regionalSetting))
                 {
                     case "--VALIDATION-RULES=CUSTOM":
-                        fileCabinetService = new FileCabinetCustomService();
+                        fileCabinetService = new FileCabinetService(new CustomValidator());
                         validationRule = "Using custom validation rules.";
                         break;
                     case "-V=CUSTOM":
-                        fileCabinetService = new FileCabinetCustomService();
+                        fileCabinetService = new FileCabinetService(new CustomValidator());
                         validationRule = "Using custom validation rules.";
                         break;
                     case "--VALIDATION-RULES=DEFAULT":
-                        fileCabinetService = new FileCabinetDefaultService();
+                        fileCabinetService = new FileCabinetService(new DefaultValidator());
                         validationRule = "Using default validation rules.";
                         break;
                     case "-V=DEFAULT":
-                        fileCabinetService = new FileCabinetDefaultService();
+                        fileCabinetService = new FileCabinetService(new DefaultValidator());
                         validationRule = "Using default validation rules.";
                         break;
                     default:
