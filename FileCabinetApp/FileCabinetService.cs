@@ -18,11 +18,18 @@ namespace FileCabinetApp
         private readonly Dictionary<DateTime, List<FileCabinetRecord>> dateOfBirthNameDictionary = new Dictionary<DateTime, List<FileCabinetRecord>>();
 
         /// <summary>
-        /// Abstract method of behavior of validation.
+        /// Method to create validation.
         /// </summary>
-        /// <param name="parem">Instance that describe all information of record.</param>
-        /// <returns>Return true if validation is okey or false with ArgumentExeption if validation is not okey.</returns>
-        public abstract bool ValidatePatameters(ObjectParametrsForCreateAndEditRecord parem);
+        /// <returns>Interface that describes validation method.</returns>
+        public abstract IRecordValidator CreateValidator();
+
+        /// <summary>
+        /// Sets this property contents needed for validate records.
+        /// </summary>
+        /// <value>
+        /// This property contents needed for validate records.
+        /// </value>
+        public IRecordValidator RecordValidator { private get; set; }
 
         /// <summary>
         /// Method creates new record.
@@ -31,7 +38,7 @@ namespace FileCabinetApp
         /// <returns>Identification number of record.</returns>
         public int CreateRecord(ObjectParametrsForCreateAndEditRecord param)
         {
-            if (!this.ValidatePatameters(param))
+            if (!this.RecordValidator.ValidatePatameters(param))
             {
                 return 0;
             }
@@ -86,7 +93,7 @@ namespace FileCabinetApp
         /// <param name="param">Instance that describe all information of record.</param>
         public void EditRecord(int id, ObjectParametrsForCreateAndEditRecord param)
         {
-            if (!this.ValidatePatameters(param))
+            if (!this.RecordValidator.ValidatePatameters(param))
             {
                 return;
             }

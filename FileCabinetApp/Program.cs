@@ -51,6 +51,7 @@ namespace FileCabinetApp
         public static void Main(string[] args)
         {
             ParametersApplication(args);
+            fileCabinetService.RecordValidator = fileCabinetService.CreateValidator();
 
             Console.WriteLine($"File Cabinet Application, developed by {Program.DeveloperName}");
             Console.WriteLine(Program.validationRule);
