@@ -10,7 +10,7 @@ namespace FileCabinetApp
     /// <summary>
     /// This class is abstract and includes and implements the behavior of the File Cabinet service.
     /// </summary>
-    public class FileCabinetService
+    public class FileCabinetService : IFileCabinetService
     {
         private readonly List<FileCabinetRecord> list = new List<FileCabinetRecord>();
         private readonly Dictionary<string, List<FileCabinetRecord>> firstNameDictionary = new Dictionary<string, List<FileCabinetRecord>>();

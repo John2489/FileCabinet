@@ -18,7 +18,7 @@ namespace FileCabinetApp
         private static string validationRule = "Using default validation rules.";
 
         private static bool isRunning = true;
-        private static FileCabinetService fileCabinetService = new FileCabinetService(new DefaultValidator());
+        private static IFileCabinetService fileCabinetService = new FileCabinetService(new DefaultValidator());
         private static CultureInfo regionalSetting = CultureInfo.CreateSpecificCulture("en-US");
 
         private static Tuple<string, Action<string>>[] commands = new Tuple<string, Action<string>>[]
