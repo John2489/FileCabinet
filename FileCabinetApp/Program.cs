@@ -14,8 +14,10 @@ namespace FileCabinetApp
         private const int DescriptionHelpIndex = 1;
         private const int ExplanationHelpIndex = 2;
 
+        private static string validationRule = "Using default validation rules.";
+
         private static bool isRunning = true;
-        private static FileCabinetCustomService fileCabinetService = new FileCabinetCustomService();
+        private static FileCabinetService fileCabinetService = new FileCabinetDefaultService();
         private static CultureInfo regionalSetting = CultureInfo.CreateSpecificCulture("en-US");
 
         private static Tuple<string, Action<string>>[] commands = new Tuple<string, Action<string>>[]
@@ -45,9 +47,13 @@ namespace FileCabinetApp
         /// <summary>
         /// Main method from which starts application.
         /// </summary>
-        public static void Main()
+        /// <param name="args">Parameters for run application.</param>
+        public static void Main(string[] args)
         {
+            ParametersApplication(args);
+
             Console.WriteLine($"File Cabinet Application, developed by {Program.DeveloperName}");
+            Console.WriteLine(Program.validationRule);
             Console.WriteLine(Program.HintMessage);
             Console.WriteLine();
 
@@ -77,6 +83,38 @@ namespace FileCabinetApp
                 }
             }
             while (isRunning);
+        }
+
+        /// <summary>
+        /// Method serves to processing parameters application.
+        /// </summary>
+        /// <param name="args">Parameters for run application.</param>
+        public static void ParametersApplication(string[] args)
+        {
+            foreach (var item in args)
+            {
+                switch (item.ToUpper(regionalSetting))
+                {
+                    case "--VALIDATION-RULES=CUSTOM":
+                        fileCabinetService = new FileCabinetCustomService();
+                        validationRule = "Using custom validation rules.";
+                        break;
+                    case "-V=CUSTOM":
+                        fileCabinetService = new FileCabinetCustomService();
+                        validationRule = "Using custom validation rules.";
+                        break;
+                    case "--VALIDATION-RULES=DEFAULT":
+                        fileCabinetService = new FileCabinetDefaultService();
+                        validationRule = "Using default validation rules.";
+                        break;
+                    case "-V=DEFAULT":
+                        fileCabinetService = new FileCabinetDefaultService();
+                        validationRule = "Using default validation rules.";
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
 
         private static void PrintMissedCommandInfo(string command)

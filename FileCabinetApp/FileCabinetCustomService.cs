@@ -52,6 +52,7 @@ namespace FileCabinetApp
                 throw new ArgumentException("parametr \"manegerClass\" is not correct.");
             }
 
+            Console.WriteLine("FileCabinetCustomService casting is okey");
             return true;
         }
     }
