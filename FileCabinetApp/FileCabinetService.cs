@@ -18,6 +18,10 @@ namespace FileCabinetApp
         private readonly Dictionary<DateTime, List<FileCabinetRecord>> dateOfBirthNameDictionary = new Dictionary<DateTime, List<FileCabinetRecord>>();
         private readonly IRecordValidator validator;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FileCabinetService"/> class.
+        /// </summary>
+        /// <param name="validator">This interface describes validation method.</param>
         public FileCabinetService(IRecordValidator validator)
         {
             this.validator = validator;
@@ -154,60 +158,54 @@ namespace FileCabinetApp
         /// Method findes records by first name.
         /// </summary>
         /// <param name="firstName">First name of person in record.</param>
-        /// <returns>Returns array of records where first name in each one record the same.</returns>
-        public FileCabinetRecord[] FindByFirstName(string firstName)
+        /// <returns>Returns Read Only Collection of records where first name in each one record the same.</returns>
+        public ReadOnlyCollection<FileCabinetRecord> FindByFirstName(string firstName)
         {
             if (firstName != null)
             {
-                return this.firstNameDictionary[firstName.ToUpper(CultureInfo.CurrentCulture)].ToArray();
+                return new ReadOnlyCollection<FileCabinetRecord>(this.firstNameDictionary[firstName.ToUpper(CultureInfo.CurrentCulture)].ToList<FileCabinetRecord>());
             }
 
             return null;
-
-            // return this.list.Where<FileCabinetRecord>(t => t.FirstName.ToUpper(CultureInfo.CreateSpecificCulture("en-US")) == firstName).ToArray();
         }
 
         /// <summary>
         /// Method findes records by last name.
         /// </summary>
         /// <param name="lastName">Last name of person in record.</param>
-        /// <returns>Returns array of records where last name in each one record the same.</returns>
-        public FileCabinetRecord[] FindByLastName(string lastName)
+        /// <returns>Returns Read Only Collection of records where last name in each one record the same.</returns>
+        public ReadOnlyCollection<FileCabinetRecord> FindByLastName(string lastName)
         {
             if (lastName != null)
             {
-                return this.lastNameDictionary[lastName.ToUpper(CultureInfo.CurrentCulture)].ToArray();
+                return new ReadOnlyCollection<FileCabinetRecord>(this.lastNameDictionary[lastName.ToUpper(CultureInfo.CurrentCulture)].ToList<FileCabinetRecord>());
             }
 
             return null;
-
-            // return this.list.Where<FileCabinetRecord>(t => t.LastName.ToUpper(CultureInfo.CreateSpecificCulture("en-US")) == lastName).ToArray();
         }
 
         /// <summary>
         /// Method findes records by date of birth.
         /// </summary>
         /// <param name="dateOfBirth">Date of birth of person in record.</param>
-        /// <returns>Returns array of records where date of birth in each one record the same.</returns>
-        public FileCabinetRecord[] FindByDateOfBirthName(DateTime dateOfBirth)
+        /// <returns>Returns Read Only Collection of records where date of birth in each one record the same.</returns>
+        public ReadOnlyCollection<FileCabinetRecord> FindByDateOfBirthName(DateTime dateOfBirth)
         {
             if (dateOfBirth != null)
             {
-                return this.dateOfBirthNameDictionary[dateOfBirth].ToArray();
+                return new ReadOnlyCollection<FileCabinetRecord>(this.dateOfBirthNameDictionary[dateOfBirth].ToList<FileCabinetRecord>());
             }
 
             return null;
-
-            // return this.list.Where(t => t.DateOfBirth == dateOfBirth).ToArray();
         }
 
         /// <summary>
         /// This method is to gets all records.
         /// </summary>
-        /// <returns>Returns all records in array view.</returns>
-        public FileCabinetRecord[] GetRecords()
+        /// <returns>Returns Read Only Collection of all records in array view.</returns>
+        public ReadOnlyCollection<FileCabinetRecord> GetRecords()
         {
-            return this.list.ToArray();
+            return new ReadOnlyCollection<FileCabinetRecord>(this.list);
         }
 
         /// <summary>

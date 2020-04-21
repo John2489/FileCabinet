@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.Globalization;
 
 namespace FileCabinetApp
@@ -389,16 +390,16 @@ namespace FileCabinetApp
             }
         }
 
-        private static void PrintRecords(FileCabinetRecord[] files)
+        private static void PrintRecords(ReadOnlyCollection<FileCabinetRecord> records)
         {
-            for (int i = 0; i < files.Length; i++)
+            foreach (var record in records)
             {
-                Console.WriteLine($"#{files[i].Id}, {files[i].FirstName}, " +
-                                  $"{files[i].LastName}," +
-                                  $" {files[i].DateOfBirth.ToString("yyyy-MMM-dd", regionalSetting)}," +
-                                  $" {files[i].SuccsesfullDeals}," +
-                                  $" {files[i].AdditionCoefficient}," +
-                                  $" {files[i].ManagerClass.ToString(regionalSetting).ToUpper(regionalSetting)}");
+                Console.WriteLine($"#{record.Id}, {record.FirstName}," +
+                  $" {record.LastName}," +
+                  $" {record.DateOfBirth.ToString("yyyy-MMM-dd", regionalSetting)}," +
+                  $" {record.SuccsesfullDeals}," +
+                  $" {record.AdditionCoefficient}," +
+                  $" {record.ManagerClass.ToString(regionalSetting).ToUpper(regionalSetting)}");
             }
         }
     }
