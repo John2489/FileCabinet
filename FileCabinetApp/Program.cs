@@ -1,8 +1,13 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.Globalization;
+using FileCabinetApp.ConvertersAndVilidators;
 
 namespace FileCabinetApp
 {
+    /// <summary>
+    /// This class is contains the Main method and runs application.
+    /// </summary>
     public static class Program
     {
         private const string DeveloperName = "Ivan Babitski";
@@ -11,8 +16,10 @@ namespace FileCabinetApp
         private const int DescriptionHelpIndex = 1;
         private const int ExplanationHelpIndex = 2;
 
+        private static string validationRule = "Using default validation rules.";
+
         private static bool isRunning = true;
-        private static FileCabinetService fileCabinetService = new FileCabinetService();
+        private static IFileCabinetService fileCabinetService = new FileCabinetService(new DefaultValidator());
         private static CultureInfo regionalSetting = CultureInfo.CreateSpecificCulture("en-US");
 
         private static Tuple<string, Action<string>>[] commands = new Tuple<string, Action<string>>[]
@@ -39,9 +46,29 @@ namespace FileCabinetApp
             new string[] { "stat", "prints statistic about records", "The 'stat' command prints quantity of records." },
         };
 
+        private static Func<string, Tuple<bool, string, string>> stringConverter = Converters.StringConverter;
+        private static Func<string, Tuple<bool, string, DateTime>> dateOfBirthConverter = Converters.DateOfBirthConverter;
+        private static Func<string, Tuple<bool, string, short>> succsesfullDealsConverter = Converters.SuccsesfullDealsConverter;
+        private static Func<string, Tuple<bool, string, decimal>> additionCoefficientConverter = Converters.AdditionCoefficientConverter;
+        private static Func<string, Tuple<bool, string, char>> manegerClassConverter = Converters.ManegerClassConverter;
+
+        private static Func<string, Tuple<bool, string>> firstNameValidator = ValidatorsDefault.FirstNameValidator;
+        private static Func<string, Tuple<bool, string>> lastNameValidator = ValidatorsDefault.LastNameValidator;
+        private static Func<DateTime, Tuple<bool, string>> dateOfBirthValidator = ValidatorsDefault.DateOfBirthValidator;
+        private static Func<short, Tuple<bool, string>> succsesfullDealsValidator = ValidatorsDefault.SuccsesfullDealsValidator;
+        private static Func<decimal, Tuple<bool, string>> additionCoefficientValidator = ValidatorsDefault.AdditionCoefficientValidator;
+        private static Func<char, Tuple<bool, string>> manegerClassValidator = ValidatorsDefault.ManegerClassValidator;
+
+        /// <summary>
+        /// Main method from which starts application.
+        /// </summary>
+        /// <param name="args">Parameters for run application.</param>
         public static void Main(string[] args)
         {
+            ParametersApplication(args);
+
             Console.WriteLine($"File Cabinet Application, developed by {Program.DeveloperName}");
+            Console.WriteLine(Program.validationRule);
             Console.WriteLine(Program.HintMessage);
             Console.WriteLine();
 
@@ -71,6 +98,87 @@ namespace FileCabinetApp
                 }
             }
             while (isRunning);
+        }
+
+        /// <summary>
+        /// Method serves to processing parameters application.
+        /// </summary>
+        /// <param name="args">Parameters for run application.</param>
+        public static void ParametersApplication(string[] args)
+        {
+            foreach (var item in args)
+            {
+                switch (item.ToUpper(regionalSetting))
+                {
+                    case "--VALIDATION-RULES=CUSTOM":
+                        fileCabinetService = new FileCabinetService(new CustomValidator());
+                        validationRule = "Using custom validation rules.";
+                        firstNameValidator = ValidatorsCustom.FirstNameValidator;
+                        dateOfBirthValidator = ValidatorsCustom.DateOfBirthValidator;
+                        succsesfullDealsValidator = ValidatorsCustom.SuccsesfullDealsValidator;
+                        additionCoefficientValidator = ValidatorsCustom.AdditionCoefficientValidator;
+                        manegerClassValidator = ValidatorsCustom.ManegerClassValidator;
+                        break;
+                    case "-V=CUSTOM":
+                        fileCabinetService = new FileCabinetService(new CustomValidator());
+                        validationRule = "Using custom validation rules.";
+                        firstNameValidator = ValidatorsCustom.FirstNameValidator;
+                        dateOfBirthValidator = ValidatorsCustom.DateOfBirthValidator;
+                        succsesfullDealsValidator = ValidatorsCustom.SuccsesfullDealsValidator;
+                        additionCoefficientValidator = ValidatorsCustom.AdditionCoefficientValidator;
+                        manegerClassValidator = ValidatorsCustom.ManegerClassValidator;
+                        break;
+                    case "--VALIDATION-RULES=DEFAULT":
+                        fileCabinetService = new FileCabinetService(new DefaultValidator());
+                        validationRule = "Using default validation rules.";
+                        firstNameValidator = ValidatorsDefault.FirstNameValidator;
+                        dateOfBirthValidator = ValidatorsDefault.DateOfBirthValidator;
+                        succsesfullDealsValidator = ValidatorsDefault.SuccsesfullDealsValidator;
+                        additionCoefficientValidator = ValidatorsDefault.AdditionCoefficientValidator;
+                        manegerClassValidator = ValidatorsDefault.ManegerClassValidator;
+                        break;
+                    case "-V=DEFAULT":
+                        fileCabinetService = new FileCabinetService(new DefaultValidator());
+                        validationRule = "Using default validation rules.";
+                        firstNameValidator = ValidatorsDefault.FirstNameValidator;
+                        dateOfBirthValidator = ValidatorsDefault.DateOfBirthValidator;
+                        succsesfullDealsValidator = ValidatorsDefault.SuccsesfullDealsValidator;
+                        additionCoefficientValidator = ValidatorsDefault.AdditionCoefficientValidator;
+                        manegerClassValidator = ValidatorsDefault.ManegerClassValidator;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        private static T ReadInput<T>(Func<string, Tuple<bool, string, T>> converter, Func<T, Tuple<bool, string>> validator)
+        {
+            do
+            {
+                T value;
+
+                var input = Console.ReadLine();
+                var conversionResult = converter(input);
+
+                if (!conversionResult.Item1)
+                {
+                    Console.WriteLine($"Conversion failed: {conversionResult.Item2}. Please, correct your input.");
+                    continue;
+                }
+
+                value = conversionResult.Item3;
+
+                var validationResult = validator(value);
+                if (!validationResult.Item1)
+                {
+                    Console.WriteLine($"Validation failed: {validationResult.Item2}. Please, correct your input.");
+                    continue;
+                }
+
+                return value;
+            }
+            while (true);
         }
 
         private static void PrintMissedCommandInfo(string command)
@@ -124,138 +232,41 @@ namespace FileCabinetApp
             DateTime dateTime;
             short succsesfullDeals;
             decimal additionCoefficient;
-            char manegerClass;
+            char managerClass;
 
             DateTime minDate = new DateTime(1950, 1, 1);
 
-            while (true)
-            {
-                Console.Write("First name: ");
-                firstName = Console.ReadLine();
-                if (firstName.Length < 2 || firstName.Length > 60 || firstName == null || firstName.Contains(' ', StringComparison.CurrentCulture))
-                {
-                    Console.WriteLine("Invalid First name");
-                    continue;
-                }
-                else
-                {
-                    break;
-                }
-            }
+            Console.Write("First name: ");
+            firstName = ReadInput<string>(stringConverter, firstNameValidator);
 
-            while (true)
-            {
-                Console.Write("Last name: ");
-                lastName = Console.ReadLine();
-                if (lastName.Length < 2 || lastName.Length > 60 || lastName == null || lastName.Contains(' ', StringComparison.CurrentCulture))
-                {
-                    Console.WriteLine("Invalid Last name");
-                    continue;
-                }
-                else
-                {
-                    break;
-                }
-            }
+            Console.Write("Last name: ");
+            lastName = ReadInput<string>(stringConverter, lastNameValidator);
 
-            string date;
-            string[] dayMonthHear;
-            int[] dateSepareted = new int[3];
-            while (true)
-            {
-                Console.Write("Date of birth(mm/dd/hhhh): ");
-                date = Console.ReadLine();
-                dayMonthHear = date.Split('/');
-                if (dayMonthHear.Length != 3)
-                {
-                    Console.WriteLine("Invalid Date");
-                    continue;
-                }
+            Console.Write("Date of birth(mm/dd/hhhh): ");
+            dateTime = ReadInput<DateTime>(dateOfBirthConverter, dateOfBirthValidator);
 
-                if (int.TryParse(dayMonthHear[0], out dateSepareted[0]) &&
-                    int.TryParse(dayMonthHear[1], out dateSepareted[1]) &&
-                    int.TryParse(dayMonthHear[2], out dateSepareted[2]))
-                {
-                    try
-                    {
-                        dateTime = new DateTime(dateSepareted[2], dateSepareted[0], dateSepareted[1]);
-                        if (dateTime < minDate || dateTime >= DateTime.Now)
-                        {
-                            Console.WriteLine("Invalid Date");
-                            continue;
-                        }
+            Console.Write("Quantity of succsesfull deals: ");
+            succsesfullDeals = ReadInput<short>(succsesfullDealsConverter, succsesfullDealsValidator);
 
-                        break;
-                    }
-                    catch (ArgumentOutOfRangeException)
-                    {
-                        Console.WriteLine("Invalid Date");
-                        continue;
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Invalid Date");
-                    continue;
-                }
-            }
+            Console.Write("Addition сoefficient to salary: ");
+            additionCoefficient = ReadInput<decimal>(additionCoefficientConverter, additionCoefficientValidator);
 
-            string succsesfullDealsString;
-            while (true)
-            {
-                Console.Write("Quantity of succsesfull deals: ");
-                succsesfullDealsString = Console.ReadLine();
-                if (short.TryParse(succsesfullDealsString, out succsesfullDeals) && succsesfullDeals >= 0)
-                {
-                    break;
-                }
-                else
-                {
-                    Console.WriteLine("Invalid Quantity of succsesfull deals");
-                    continue;
-                }
-            }
+            Console.Write("Maneger Class: ");
+            managerClass = ReadInput<char>(manegerClassConverter, manegerClassValidator);
 
-            string additionCoefficientString;
-            while (true)
-            {
-                Console.Write("Addition сoefficient to salary: ");
-                additionCoefficientString = Console.ReadLine();
-                if (decimal.TryParse(additionCoefficientString, out additionCoefficient) && additionCoefficient >= 0)
-                {
-                    break;
-                }
-                else
-                {
-                    Console.WriteLine("Invalid Addition сoefficient");
-                    continue;
-                }
-            }
-
-            string manegerClassString;
-            while (true)
-            {
-                Console.Write("Maneger Class: ");
-                manegerClassString = Console.ReadLine();
-                if (manegerClassString.Length == 1 && char.IsLetter(manegerClassString[0]))
-                {
-                    manegerClass = manegerClassString[0];
-                    break;
-                }
-                else
-                {
-                    Console.WriteLine("Invalid Maneger Class");
-                    continue;
-                }
-            }
-
-            return new object[6] { firstName, lastName, dateTime, succsesfullDeals, additionCoefficient, manegerClass };
+            return new object[6] { firstName, lastName, dateTime, succsesfullDeals, additionCoefficient, managerClass };
         }
 
         private static void Create(string parameters)
         {
             object[] newRecordData = UserQuestioning();
-            fileCabinetService.CreateRecord(newRecordData[0].ToString(), newRecordData[1].ToString(), (DateTime)newRecordData[2], (short)newRecordData[3], (decimal)newRecordData[4], (char)newRecordData[5]);
+            fileCabinetService.CreateRecord(new ObjectParametrsForCreateAndEditRecord(
+                                                            newRecordData[0].ToString(),
+                                                            newRecordData[1].ToString(),
+                                                            (DateTime)newRecordData[2],
+                                                            (short)newRecordData[3],
+                                                            (decimal)newRecordData[4],
+                                                            (char)newRecordData[5]));
             Console.WriteLine($"Record #{fileCabinetService.GetStat()} is created.");
         }
 
@@ -287,7 +298,13 @@ namespace FileCabinetApp
             }
 
             object[] newRecordData = UserQuestioning();
-            fileCabinetService.EditRecord(indexOfRecord, newRecordData[0].ToString(), newRecordData[1].ToString(), (DateTime)newRecordData[2], (short)newRecordData[3], (decimal)newRecordData[4], (char)newRecordData[5]);
+            fileCabinetService.EditRecord(indexOfRecord, new ObjectParametrsForCreateAndEditRecord(
+                                                            newRecordData[0].ToString(),
+                                                            newRecordData[1].ToString(),
+                                                            (DateTime)newRecordData[2],
+                                                            (short)newRecordData[3],
+                                                            (decimal)newRecordData[4],
+                                                            (char)newRecordData[5]));
             Console.WriteLine($"Record #{indexOfRecord} is updated.");
         }
 
@@ -333,16 +350,16 @@ namespace FileCabinetApp
             }
         }
 
-        private static void PrintRecords(FileCabinetRecord[] files)
+        private static void PrintRecords(ReadOnlyCollection<FileCabinetRecord> records)
         {
-            for (int i = 0; i < files.Length; i++)
+            foreach (var record in records)
             {
-                Console.WriteLine($"#{files[i].Id}, {files[i].FirstName}, " +
-                                  $"{files[i].LastName}," +
-                                  $" {files[i].DateOfBirth.ToString("yyyy-MMM-dd", regionalSetting)}," +
-                                  $" {files[i].SuccsesfullDeals}," +
-                                  $" {files[i].AdditionCoefficient}," +
-                                  $" {files[i].ManegerClass.ToString(regionalSetting).ToUpper(regionalSetting)}");
+                Console.WriteLine($"#{record.Id}, {record.FirstName}," +
+                  $" {record.LastName}," +
+                  $" {record.DateOfBirth.ToString("yyyy-MMM-dd", regionalSetting)}," +
+                  $" {record.SuccsesfullDeals}," +
+                  $" {record.AdditionCoefficient}," +
+                  $" {record.ManagerClass.ToString(regionalSetting).ToUpper(regionalSetting)}");
             }
         }
     }

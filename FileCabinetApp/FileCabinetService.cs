@@ -7,54 +7,47 @@ using System.Text;
 
 namespace FileCabinetApp
 {
-    public class FileCabinetService
+    /// <summary>
+    /// This class is abstract and includes and implements the behavior of the File Cabinet service.
+    /// </summary>
+    public class FileCabinetService : IFileCabinetService
     {
         private readonly List<FileCabinetRecord> list = new List<FileCabinetRecord>();
         private readonly Dictionary<string, List<FileCabinetRecord>> firstNameDictionary = new Dictionary<string, List<FileCabinetRecord>>();
         private readonly Dictionary<string, List<FileCabinetRecord>> lastNameDictionary = new Dictionary<string, List<FileCabinetRecord>>();
         private readonly Dictionary<DateTime, List<FileCabinetRecord>> dateOfBirthNameDictionary = new Dictionary<DateTime, List<FileCabinetRecord>>();
+        private readonly IRecordValidator validator;
 
-        public int CreateRecord(string firstName, string lastName, DateTime dateOfBirth, short succsesfullDeals, decimal additionCoefficient, char manegerClass)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FileCabinetService"/> class.
+        /// </summary>
+        /// <param name="validator">This interface describes validation method.</param>
+        public FileCabinetService(IRecordValidator validator)
         {
-            if (firstName == null || firstName.Length < 2 || firstName.Length > 60 || firstName.Contains(' ', StringComparison.CurrentCulture))
-            {
-                throw new ArgumentException("parametr \"firstName\" is not correct.");
-            }
+            this.validator = validator;
+        }
 
-            if (lastName == null || lastName.Length < 2 || lastName.Length > 60 || lastName.Contains(' ', StringComparison.CurrentCulture))
+        /// <summary>
+        /// Method creates new record.
+        /// </summary>
+        /// <param name="param">Instance that describe all information of record.</param>
+        /// <returns>Identification number of record.</returns>
+        public int CreateRecord(ObjectParametrsForCreateAndEditRecord param)
+        {
+            if (!this.validator.ValidatePatameters(param))
             {
-                throw new ArgumentException("parametr \"lastName\" is not correct.");
-            }
-
-            if (dateOfBirth == null || dateOfBirth < new DateTime(1950, 1, 1) || dateOfBirth >= DateTime.Now)
-            {
-                throw new ArgumentException("parametr \"dateOfBirth\" is not correct.");
-            }
-
-            if (succsesfullDeals <= 0)
-            {
-                throw new ArgumentException("parametr \"succsesfullDeals\" is not correct.");
-            }
-
-            if (additionCoefficient <= 0)
-            {
-                throw new ArgumentException("parametr \"additionCoefficient\" is not correct.");
-            }
-
-            if (!char.IsLetter(manegerClass))
-            {
-                throw new ArgumentException("parametr \"manegerClass\" is not correct.");
+                return 0;
             }
 
             var record = new FileCabinetRecord
             {
                 Id = this.list.Count + 1,
-                FirstName = firstName,
-                LastName = lastName,
-                DateOfBirth = dateOfBirth,
-                SuccsesfullDeals = succsesfullDeals,
-                AdditionCoefficient = additionCoefficient,
-                ManegerClass = manegerClass,
+                FirstName = param.FirstName,
+                LastName = param.LastName,
+                DateOfBirth = param.DateOfBirth,
+                SuccsesfullDeals = param.SuccsesfullDeals,
+                AdditionCoefficient = param.AdditionCoefficient,
+                ManagerClass = param.ManagerClass,
             };
 
             this.list.Add(record);
@@ -89,10 +82,20 @@ namespace FileCabinetApp
             return record.Id;
         }
 
-        public void EditRecord(int id, string firstName, string lastName, DateTime dateOfBirth, short succsesfullDeals, decimal additionCoefficient, char manegerClass)
+        /// <summary>
+        ///  Method edited an existing record.
+        /// </summary>
+        /// <param name="id">Identification number of record which editing.</param>
+        /// <param name="param">Instance that describe all information of record.</param>
+        public void EditRecord(int id, ObjectParametrsForCreateAndEditRecord param)
         {
+            if (!this.validator.ValidatePatameters(param))
+            {
+                return;
+            }
+
             FileCabinetRecord editingElement = this.list.Where<FileCabinetRecord>(t => t.Id == id).FirstOrDefault();
-            if (editingElement == null)
+            if (editingElement == null || param == null)
             {
                 throw new ArgumentException($"Editing element whis id {id} does not exist.");
             }
@@ -101,16 +104,16 @@ namespace FileCabinetApp
             string oldLastName = editingElement.LastName;
             DateTime oldDateOfBirth = new DateTime(editingElement.DateOfBirth.Year, editingElement.DateOfBirth.Month, editingElement.DateOfBirth.Day);
 
-            editingElement.FirstName = firstName;
-            editingElement.LastName = lastName;
-            editingElement.DateOfBirth = dateOfBirth;
-            editingElement.SuccsesfullDeals = succsesfullDeals;
-            editingElement.AdditionCoefficient = additionCoefficient;
-            editingElement.ManegerClass = manegerClass;
+            editingElement.FirstName = param.FirstName;
+            editingElement.LastName = param.LastName;
+            editingElement.DateOfBirth = param.DateOfBirth;
+            editingElement.SuccsesfullDeals = param.SuccsesfullDeals;
+            editingElement.AdditionCoefficient = param.AdditionCoefficient;
+            editingElement.ManagerClass = param.ManagerClass;
 
             if (this.firstNameDictionary.ContainsKey(oldFirstName.ToUpper(CultureInfo.CurrentCulture)))
             {
-                    this.firstNameDictionary[oldFirstName.ToUpper(CultureInfo.CurrentCulture)] = this.list.Where<FileCabinetRecord>(t => t.FirstName == oldFirstName).ToList();
+                this.firstNameDictionary[oldFirstName.ToUpper(CultureInfo.CurrentCulture)] = this.list.Where<FileCabinetRecord>(t => t.FirstName == oldFirstName).ToList();
             }
 
             if (this.lastNameDictionary.ContainsKey(oldLastName.ToUpper(CultureInfo.CurrentCulture)))
@@ -151,47 +154,64 @@ namespace FileCabinetApp
             }
         }
 
-        public FileCabinetRecord[] FindByFirstName(string firstName)
+        /// <summary>
+        /// Method findes records by first name.
+        /// </summary>
+        /// <param name="firstName">First name of person in record.</param>
+        /// <returns>Returns Read Only Collection of records where first name in each one record the same.</returns>
+        public ReadOnlyCollection<FileCabinetRecord> FindByFirstName(string firstName)
         {
             if (firstName != null)
             {
-                return this.firstNameDictionary[firstName.ToUpper(CultureInfo.CurrentCulture)].ToArray();
+                return new ReadOnlyCollection<FileCabinetRecord>(this.firstNameDictionary[firstName.ToUpper(CultureInfo.CurrentCulture)].ToList<FileCabinetRecord>());
             }
 
             return null;
-
-            // return this.list.Where<FileCabinetRecord>(t => t.FirstName.ToUpper(CultureInfo.CreateSpecificCulture("en-US")) == firstName).ToArray();
         }
 
-        public FileCabinetRecord[] FindByLastName(string lastName)
+        /// <summary>
+        /// Method findes records by last name.
+        /// </summary>
+        /// <param name="lastName">Last name of person in record.</param>
+        /// <returns>Returns Read Only Collection of records where last name in each one record the same.</returns>
+        public ReadOnlyCollection<FileCabinetRecord> FindByLastName(string lastName)
         {
             if (lastName != null)
             {
-                return this.lastNameDictionary[lastName.ToUpper(CultureInfo.CurrentCulture)].ToArray();
+                return new ReadOnlyCollection<FileCabinetRecord>(this.lastNameDictionary[lastName.ToUpper(CultureInfo.CurrentCulture)].ToList<FileCabinetRecord>());
             }
 
             return null;
-
-            // return this.list.Where<FileCabinetRecord>(t => t.LastName.ToUpper(CultureInfo.CreateSpecificCulture("en-US")) == lastName).ToArray();
         }
 
-        public FileCabinetRecord[] FindByDateOfBirthName(DateTime dateOfBirth)
+        /// <summary>
+        /// Method findes records by date of birth.
+        /// </summary>
+        /// <param name="dateOfBirth">Date of birth of person in record.</param>
+        /// <returns>Returns Read Only Collection of records where date of birth in each one record the same.</returns>
+        public ReadOnlyCollection<FileCabinetRecord> FindByDateOfBirthName(DateTime dateOfBirth)
         {
             if (dateOfBirth != null)
             {
-                return this.dateOfBirthNameDictionary[dateOfBirth].ToArray();
+                return new ReadOnlyCollection<FileCabinetRecord>(this.dateOfBirthNameDictionary[dateOfBirth].ToList<FileCabinetRecord>());
             }
 
             return null;
-
-            // return this.list.Where(t => t.DateOfBirth == dateOfBirth).ToArray();
         }
 
-        public FileCabinetRecord[] GetRecords()
+        /// <summary>
+        /// This method is to gets all records.
+        /// </summary>
+        /// <returns>Returns Read Only Collection of all records in array view.</returns>
+        public ReadOnlyCollection<FileCabinetRecord> GetRecords()
         {
-            return this.list.ToArray();
+            return new ReadOnlyCollection<FileCabinetRecord>(this.list);
         }
 
+        /// <summary>
+        /// Method is to count records.
+        /// </summary>
+        /// <returns>Returns quantity of records.</returns>
         public int GetStat()
         {
             return this.list.Count;
