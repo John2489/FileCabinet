@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.IO;
 using FileCabinetApp.ConvertersAndVilidators;
 
 namespace FileCabinetApp
@@ -27,6 +28,7 @@ namespace FileCabinetApp
             new Tuple<string, Action<string>>("create", Create),
             new Tuple<string, Action<string>>("edit", Edit),
             new Tuple<string, Action<string>>("exit", Exit),
+            new Tuple<string, Action<string>>("export", Export),
             new Tuple<string, Action<string>>("find", Find),
             new Tuple<string, Action<string>>("list", List),
             new Tuple<string, Action<string>>("help", PrintHelp),
@@ -38,6 +40,7 @@ namespace FileCabinetApp
             new string[] { "create", "create new record", "The 'create' command create new record." },
             new string[] { "edit", "edit record by id", "The 'edit' command create new record. Parametr is id of edit records." },
             new string[] { "exit", "exits the application", "The 'exit' command exits the application." },
+            new string[] { "export csv", "export all records to *.csv file", "Export all records to *.csv file." },
             new string[] { "find firstname", "finds specific record record by FirstName", "The 'find' command find specific record by FirstName." },
             new string[] { "find lastname", "finds specific record record by LastName", "The 'find' command find specific record by LastName." },
             new string[] { "find dateofbirth", "finds specific record record by DateOfBirth", "The 'find' command find specific record by DateOfBirth." },
@@ -306,6 +309,61 @@ namespace FileCabinetApp
                                                             (decimal)newRecordData[4],
                                                             (char)newRecordData[5]));
             Console.WriteLine($"Record #{indexOfRecord} is updated.");
+        }
+
+        private static void Export(string parameters)
+        {
+            string[] exportParametrs = parameters.Split(' ', 2);
+            string modeExport = exportParametrs[0].ToUpper(regionalSetting);
+
+            if (exportParametrs.Length != 2)
+            {
+                Console.WriteLine("Command is not correct, try again.");
+                return;
+            }
+
+            if (modeExport == "CSV")
+            {
+                string[] tempMode = exportParametrs[1].Split('.');
+                string fealureIfoLine = @$"Export failed: can't open file {exportParametrs[1]}.";
+                string succesExportCSV = $"All records are exported to file {exportParametrs[1]}.";
+                int positionOfLastIndex = exportParametrs[1].LastIndexOf('\\');
+
+                if (exportParametrs[1][exportParametrs[1].Length - 1] == '\\')
+                {
+                    positionOfLastIndex--;
+                }
+
+                if (positionOfLastIndex < 0)
+                {
+                    positionOfLastIndex = 0;
+                }
+
+                string directory = exportParametrs[1].Substring(0, positionOfLastIndex);
+
+                if (directory.Contains(':'))
+                {
+                    if (!Directory.Exists(directory))
+                    {
+                        Console.WriteLine(fealureIfoLine);
+                        return;
+                    }
+                }
+
+                if (tempMode.Length >= 1 && tempMode[tempMode.Length - 1].ToUpper(regionalSetting) != "CSV")
+                {
+                    exportParametrs[1] += ".csv";
+                }
+
+                StreamWriter streamWriter = new StreamWriter(exportParametrs[1], File.Exists(parameters));
+
+                FileCabinetService castedFileCabinetService = (FileCabinetService)fileCabinetService;
+                FileCabinetServiceSnapshot snapshot = castedFileCabinetService.MakeSnapshot();
+                snapshot.SaveToCsv(streamWriter);
+
+                streamWriter.Close();
+                Console.WriteLine(succesExportCSV);
+            }
         }
 
         private static void Find(string parameters)

@@ -216,5 +216,16 @@ namespace FileCabinetApp
         {
             return this.list.Count;
         }
+
+        /// <summary>
+        /// Create new instans of FileCabinetServiceSnapshot.
+        /// </summary>
+        /// <returns>New instans of FileCabinetServiceSnapshot.</returns>
+        public FileCabinetServiceSnapshot MakeSnapshot()
+        {
+            FileCabinetRecord[] files = this.list.ToArray();
+            FileCabinetRecord[] filesCopied = (FileCabinetRecord[])files.Clone();
+            return new FileCabinetServiceSnapshot(filesCopied);
+        }
     }
 }

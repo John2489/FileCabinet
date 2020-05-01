@@ -90,6 +90,7 @@ namespace FileCabinetApp.ConvertersAndVilidators
 
             if (short.TryParse(userLine, out item3))
             {
+                item1 = true;
                 return new Tuple<bool, string, short>(item1, item2, item3);
             }
             else
@@ -112,6 +113,7 @@ namespace FileCabinetApp.ConvertersAndVilidators
 
             if (decimal.TryParse(userLine, out item3))
             {
+                item1 = true;
                 return new Tuple<bool, string, decimal>(item1, item2, item3);
             }
             else
@@ -134,6 +136,7 @@ namespace FileCabinetApp.ConvertersAndVilidators
 
             if (userLine.Length == 1 && char.IsLetter(userLine[0]))
             {
+                item1 = true;
                 item3 = userLine[0];
                 return new Tuple<bool, string, char>(item1, item2, item3);
             }
