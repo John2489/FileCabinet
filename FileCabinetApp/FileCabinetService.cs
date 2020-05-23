@@ -224,7 +224,12 @@ namespace FileCabinetApp
         public FileCabinetServiceSnapshot MakeSnapshot()
         {
             FileCabinetRecord[] files = this.list.ToArray();
-            FileCabinetRecord[] filesCopied = (FileCabinetRecord[])files.Clone();
+            FileCabinetRecord[] filesCopied = new FileCabinetRecord[files.Length];
+            for (int i = 0; i < files.Length; i++)
+            {
+                filesCopied[i] = (FileCabinetRecord)files[i].Clone();
+            }
+
             return new FileCabinetServiceSnapshot(filesCopied);
         }
     }

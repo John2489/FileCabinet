@@ -7,7 +7,7 @@ namespace FileCabinetApp
     /// <summary>
     /// This class describes entity of record.
     /// </summary>
-    public class FileCabinetRecord
+    public class FileCabinetRecord : ICloneable
     {
         /// <summary>
         /// Gets or sets identification number of record.
@@ -64,5 +64,22 @@ namespace FileCabinetApp
         /// Manager class of record.
         /// </value>
         public char ManagerClass { get; set; }
+
+        /// <summary>
+        /// Make deep clone of FileCabinetRecord.
+        /// </summary>
+        /// <returns>Clone of FileCabinetRecord.</returns>
+        public object Clone()
+        {
+            var temp = new FileCabinetRecord();
+            temp.Id = this.Id;
+            temp.FirstName = this.FirstName;
+            temp.LastName = this.LastName;
+            temp.DateOfBirth = this.DateOfBirth;
+            temp.SuccsesfullDeals = this.SuccsesfullDeals;
+            temp.AdditionCoefficient = this.AdditionCoefficient;
+            temp.ManagerClass = this.ManagerClass;
+            return temp;
+        }
     }
 }

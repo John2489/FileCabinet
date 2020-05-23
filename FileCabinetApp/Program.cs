@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
+using System.Xml;
 using FileCabinetApp.ConvertersAndVilidators;
 
 namespace FileCabinetApp
@@ -41,6 +42,7 @@ namespace FileCabinetApp
             new string[] { "edit", "edit record by id", "The 'edit' command create new record. Parametr is id of edit records." },
             new string[] { "exit", "exits the application", "The 'exit' command exits the application." },
             new string[] { "export csv", "export all records to *.csv file", "Export all records to *.csv file." },
+            new string[] { "export xml", "export all records to *.xml file", "Export all records to *.xml file." },
             new string[] { "find firstname", "finds specific record record by FirstName", "The 'find' command find specific record by FirstName." },
             new string[] { "find lastname", "finds specific record record by LastName", "The 'find' command find specific record by LastName." },
             new string[] { "find dateofbirth", "finds specific record record by DateOfBirth", "The 'find' command find specific record by DateOfBirth." },
@@ -325,8 +327,8 @@ namespace FileCabinetApp
             if (modeExport == "CSV")
             {
                 string[] tempMode = exportParametrs[1].Split('.');
-                string fealureIfoLine = @$"Export failed: can't open file {exportParametrs[1]}.";
-                string succesExportCSV = $"All records are exported to file {exportParametrs[1]}.";
+                string fealureInfoLine = @$"Export failed: can't open file {exportParametrs[1]}.";
+                string succesExportCSV;
                 int positionOfLastIndex = exportParametrs[1].LastIndexOf('\\');
 
                 if (exportParametrs[1][exportParametrs[1].Length - 1] == '\\')
@@ -345,7 +347,7 @@ namespace FileCabinetApp
                 {
                     if (!Directory.Exists(directory))
                     {
-                        Console.WriteLine(fealureIfoLine);
+                        Console.WriteLine(fealureInfoLine);
                         return;
                     }
                 }
@@ -355,6 +357,8 @@ namespace FileCabinetApp
                     exportParametrs[1] += ".csv";
                 }
 
+                succesExportCSV = $"All records are exported to file {exportParametrs[1]}.";
+
                 StreamWriter streamWriter = new StreamWriter(exportParametrs[1], File.Exists(parameters));
 
                 FileCabinetService castedFileCabinetService = (FileCabinetService)fileCabinetService;
@@ -362,6 +366,52 @@ namespace FileCabinetApp
                 snapshot.SaveToCsv(streamWriter);
 
                 streamWriter.Close();
+                Console.WriteLine(succesExportCSV);
+            }
+
+            if (modeExport == "XML")
+            {
+                string[] tempMode = exportParametrs[1].Split('.');
+                string fealureInfoLine = @$"Export failed: can't open file {exportParametrs[1]}.";
+                string succesExportCSV;
+                int positionOfLastIndex = exportParametrs[1].LastIndexOf('\\');
+
+                if (exportParametrs[1][exportParametrs[1].Length - 1] == '\\')
+                {
+                    positionOfLastIndex--;
+                }
+
+                if (positionOfLastIndex < 0)
+                {
+                    positionOfLastIndex = 0;
+                }
+
+                string directory = exportParametrs[1].Substring(0, positionOfLastIndex);
+
+                if (directory.Contains(':'))
+                {
+                    if (!Directory.Exists(directory))
+                    {
+                        Console.WriteLine(fealureInfoLine);
+                        return;
+                    }
+                }
+
+                if (tempMode.Length >= 1 && tempMode[tempMode.Length - 1].ToUpper(regionalSetting) != "XML")
+                {
+                    exportParametrs[1] += ".xml";
+                }
+
+                succesExportCSV = $"All records are exported to file {exportParametrs[1]}.";
+
+                StreamWriter streamWriter = new StreamWriter(exportParametrs[1], File.Exists(parameters));
+
+                FileCabinetService castedFileCabinetService = (FileCabinetService)fileCabinetService;
+                FileCabinetServiceSnapshot snapshot = castedFileCabinetService.MakeSnapshot();
+                snapshot.SaveToXml(streamWriter);
+
+                streamWriter.Close();
+
                 Console.WriteLine(succesExportCSV);
             }
         }
